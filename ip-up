@@ -1,0 +1,80 @@
+#!/system/bin/sh
+
+/system/bin/log -t pppd "execute ip-up: linkName=$LINKNAME, interfaceName=$1"
+/system/bin/log -t pppd "execute ip-up: ip-local=$IPLOCAL, ip-remote=$IPREMOTE"
+/system/bin/log -t pppd "execute ip-up: dns1=$DNS1, dns2=$DNS2, gw=$IPREMOTE, proxy=$PROXY"
+
+case $1 in
+    ppp1)
+	/android/bin/iptables --flush;
+	/android/bin/iptables --table nat --flush;
+	/android/bin/iptables --delete-chain;
+	/android/bin/iptables --table nat --append POSTROUTING --out-interface ppp0 -j MASQUERADE;
+	/android/bin/iptables --append FORWARD --in-interface ppp1 -j ACCEPT;
+	echo 0 > /proc/sys/net/ipv4/ip_forward;
+	echo 1 > /proc/sys/net/ipv4/ip_forward;
+	echo $PPPD_PID > /etc/ppp/ppp1.pid;
+	;;
+    ppp0)
+        #/system/bin/setprop "net.interfaces.defaultroute" "gprs"
+        /system/bin/setprop "net.interfaces.defaultroute" "ppp0";
+       
+        /system/bin/setprop "net.gprs.dns1" "$DNS1";
+        /system/bin/setprop "net.gprs.dns2" "$DNS2";
+        /system/bin/setprop "net.gprs.local-ip" "$IPLOCAL";
+        /system/bin/setprop "net.gprs.remote-ip" "$IPREMOTE"
+        /system/bin/setprop "net.gprs.gw" "$IPREMOTE";
+        /system/bin/setprop "net.gprs.http-proxy" "$PROXY";
+        /system/bin/setprop "net.gprs.pppd_pid" "$PPPD_PID";
+        
+        /system/bin/setprop "net.dns1" "$DNS1";
+        /system/bin/setprop "net.dns2" "$DNS2";
+        # /system/bin/setprop "net.local-ip" "$IPLOCAL";
+        # /system/bin/setprop "net.remote-ip" "$IPREMOTE";
+        # /system/bin/setprop "net.gw" "$IPREMOTE";
+        # /system/bin/setprop "net.http-proxy" "$PROXY";
+        # /system/bin/setprop "net.pppd_pid" "$PPPD_PID";
+        
+        /system/bin/setprop "net.ppp0.dns1" "$DNS1";
+        /system/bin/setprop "net.ppp0.dns2" "$DNS2";
+        /system/bin/setprop "net.ppp0.local-ip" "$IPLOCAL";
+        /system/bin/setprop "net.ppp0.remote-ip" "$IPREMOTE";
+        /system/bin/setprop "net.ppp0.gw" "$IPREMOTE";
+        /system/bin/setprop "net.ppp0.http-proxy" "$PROXY";
+        /system/bin/setprop "net.ppp0.pppd_pid" "$PPPD_PID";
+        
+        # /system/bin/setprop "net.wlan0.dns1" "$DNS1";
+        # /system/bin/setprop "net.wlan0.dns2" "$DNS2";
+        # /system/bin/setprop "net.wlan0.local-ip" "$IPLOCAL";
+        # /system/bin/setprop "net.wlan0.remote-ip" "$IPREMOTE";
+        # /system/bin/setprop "net.wlan0.gw" "$IPREMOTE";
+        # /system/bin/setprop "net.wlan0.http-proxy" "$PROXY";
+        # /system/bin/setprop "net.wlan0.pppd_pid" "$PPPD_PID";
+        
+        # /system/bin/setprop "dhcp.wlan0.dns1" "$DNS1";
+        # /system/bin/setprop "dhcp.wlan0.dns2" "$DNS2";
+        # /system/bin/setprop "dhcp.wlan0.local-ip" "$IPLOCAL";
+        # /system/bin/setprop "dhcp.wlan0.remote-ip" "$IPREMOTE";
+        # /system/bin/setprop "dhcp.wlan0.gw" "$IPREMOTE";
+        # /system/bin/setprop "dhcp.wlan0.http-proxy" "$PROXY";
+        # /system/bin/setprop "dhcp.wlan0.pppd_pid" "$PPPD_PID";
+        
+        echo $PPPD_PID > /etc/ppp/ppp0.pid;
+        chmod 666 /etc/ppp/ppp0.pid;
+        ;;
+esac
+
+# Use interface name if linkname is not available
+NAME=${LINKNAME:-"$1"}
+
+/system/bin/log -t pppd "setprop net.$NAME"
+
+/system/bin/setprop "net.$NAME.dns1" "$DNS1"
+/system/bin/setprop "net.$NAME.dns2" "$DNS2" 
+/system/bin/setprop "net.$NAME.local-ip" "$IPLOCAL" 
+/system/bin/setprop "net.$NAME.remote-ip" "$IPREMOTE" 
+/system/bin/setprop "net.$NAME.gw" "$IPREMOTE"
+/system/bin/setprop "net.$NAME.pppd_pid" "$PPPD_PID"
+
+/system/bin/getprop > /sdcard/Download/getprop.txt
+

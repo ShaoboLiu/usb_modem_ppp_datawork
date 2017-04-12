@@ -1,0 +1,5 @@
+#!/system/bin/sh
+
+/system/bin/log -t pppd "execute script ip-up-ppp0"
+
+

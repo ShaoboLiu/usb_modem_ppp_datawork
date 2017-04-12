@@ -1,0 +1,45 @@
+#!/system/bin/sh
+# An unforunate wrapper script 
+# so that the exit code of pppd may be retrieved
+
+PPPD_EXIT=""
+PPPD_PID=
+PPPD_ARGS=`/system/bin/getprop net.gprs.ppp-args`
+
+/system/bin/setprop "net.gprs.ppp-exit" ""
+
+/system/bin/log -t pppd "Starting pppd"
+/system/bin/log -t pppd "additional PPPD_ARGS=$PPPD_ARGS"
+
+
+
+
+
+/system/bin/pppd /dev/ttyUSB0 115200 modem crtscts mru 1280 debug dump nopcomp nodeflate nodetach noipdefault defaultroute usepeerdns novj noauth novjccomp connect "/system/bin/chat -v -t15 -f /system/etc/ppp/gprs-ppp-on-dialer" user fido password fido connect-delay 5000 ipcp-accept-local ipcp-accept-remote ipcp-max-failure 60 ipcp-max-configure 60 ipcp-restart 5
+#lcp-echo-interval 5 lcp-echo-failure 8
+
+
+#/system/bin/pppd /dev/ttyUSB0 115200 mru 1280 nodetach debug dump defaultroute usepeerdns novj N/A  novjccomp noipdefault ipcp-accept-local ipcp-accept-remote connect-delay 5000 ipcp-max-failure 60 ipcp-max-configure 60 -am
+
+#/system/bin/pppd /dev/ttyUSB0 115200 crtscts debug  dump %s nodetach modem noipdefault  defaultroute usepeerdns user 'fido' password 'fido'
+
+#/system/bin/pppd /dev/ttyUSB0 115200 mru 1280 nodetach debug dump %s defaultroute usepeerdns novj  user 'fido' password 'fido'  novjccomp noipdefault ipcp-accept-local ipcp-accept-remote connect-delay 5000 ipcp-max-failure 60 ipcp-max-configure 60 -am
+
+
+#/system/bin/pppd /dev/ttyUSB0 115200 dump linkname ppp0 defaultroute usepeerdns nomagic nodetach crtscts debug novj maxfail 1 0.0.0.0: logfile /system/etc/ppp/ppp.log connect "/system/bin/chat -v -s -f /etc/ppp/xgoldDialer"
+
+#/system/bin/pppd connect "/system/bin/chat -V -f /etc/ppp/chatScripts/connectScript" disconnect "/system/bin/chat -V -f /etc/ppp/chatScripts/disconnectScript"
+
+#/system/bin/pppd /dev/ttyUSB0 115200 modem linkname ppp0 user "" persist defaultroute noipdefault usepeerdns -detach crtscts noauth debug noccp novj maxfail 1 0.0.0.0: logfile /system/etc/ppp/ppp.log connect "/system/bin/chat -v -s -f /etc/ppp/chatScripts/connectScript"
+
+#/system/bin/pppd /dev/ttyUSB0 115200 logfile /system/etc/ppp/ppp.log linkname ppp0 defaultroute crtscts nomagic dump noccp usepeerdns debug noauth novj user "" connect "/system/bin/chat -V -f /etc/ppp/chatScripts/connectScript"
+
+
+PPPD_EXIT=$?
+PPPD_PID=$!
+
+
+/system/bin/log -t pppd "pppd exited with $PPPD_EXIT"
+
+/system/bin/setprop "net.gprs.ppp-exit" "$PPPD_EXIT"
+
